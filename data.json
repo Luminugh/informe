@@ -94,5 +94,31 @@
     "fact": "hecho_ventas",
     "dimensions": ["dim_tiempo", "dim_producto", "dim_tienda", "dim_cliente", "dim_canal_venta"],
     "measures": ["cantidad_vendida", "monto_total", "descuento_aplicado", "costo_total"]
-  }
+  },
+  "olapFacts": [
+    { "month": "Ene", "quarter": "T1", "region": "Lima", "channel": "Tiendas fisicas", "category": "Abarrotes", "sales": 188000, "units": 12400, "margin": 23.4, "transactions": 1640 },
+    { "month": "Ene", "quarter": "T1", "region": "Norte", "channel": "E-commerce", "category": "Limpieza", "sales": 76000, "units": 4900, "margin": 28.1, "transactions": 720 },
+    { "month": "Feb", "quarter": "T1", "region": "Lima", "channel": "App movil", "category": "Bebidas", "sales": 92000, "units": 3600, "margin": 31.6, "transactions": 610 },
+    { "month": "Feb", "quarter": "T1", "region": "Sur", "channel": "Tiendas fisicas", "category": "Lacteos", "sales": 124000, "units": 8400, "margin": 20.8, "transactions": 930 },
+    { "month": "Mar", "quarter": "T1", "region": "Centro", "channel": "E-commerce", "category": "Abarrotes", "sales": 98000, "units": 7100, "margin": 24.7, "transactions": 820 },
+    { "month": "Mar", "quarter": "T1", "region": "Oriente", "channel": "Tiendas fisicas", "category": "Limpieza", "sales": 64000, "units": 3900, "margin": 27.3, "transactions": 520 },
+    { "month": "Abr", "quarter": "T2", "region": "Lima", "channel": "E-commerce", "category": "Lacteos", "sales": 142000, "units": 9600, "margin": 22.5, "transactions": 1080 },
+    { "month": "Abr", "quarter": "T2", "region": "Norte", "channel": "Tiendas fisicas", "category": "Bebidas", "sales": 112000, "units": 4300, "margin": 33.2, "transactions": 690 },
+    { "month": "May", "quarter": "T2", "region": "Sur", "channel": "App movil", "category": "Abarrotes", "sales": 88000, "units": 6200, "margin": 25.1, "transactions": 570 },
+    { "month": "May", "quarter": "T2", "region": "Centro", "channel": "Tiendas fisicas", "category": "Limpieza", "sales": 134000, "units": 8100, "margin": 29.4, "transactions": 860 },
+    { "month": "Jun", "quarter": "T2", "region": "Lima", "channel": "Tiendas fisicas", "category": "Abarrotes", "sales": 226000, "units": 14900, "margin": 24.2, "transactions": 1810 },
+    { "month": "Jun", "quarter": "T2", "region": "Oriente", "channel": "E-commerce", "category": "Bebidas", "sales": 69000, "units": 2600, "margin": 32.8, "transactions": 410 },
+    { "month": "Jul", "quarter": "T3", "region": "Norte", "channel": "App movil", "category": "Lacteos", "sales": 96000, "units": 6600, "margin": 21.4, "transactions": 620 },
+    { "month": "Jul", "quarter": "T3", "region": "Sur", "channel": "E-commerce", "category": "Limpieza", "sales": 118000, "units": 7200, "margin": 28.9, "transactions": 760 },
+    { "month": "Ago", "quarter": "T3", "region": "Lima", "channel": "E-commerce", "category": "Bebidas", "sales": 176000, "units": 6800, "margin": 34.1, "transactions": 1040 },
+    { "month": "Ago", "quarter": "T3", "region": "Centro", "channel": "App movil", "category": "Abarrotes", "sales": 84000, "units": 5900, "margin": 23.8, "transactions": 540 },
+    { "month": "Sep", "quarter": "T3", "region": "Norte", "channel": "Tiendas fisicas", "category": "Abarrotes", "sales": 154000, "units": 10300, "margin": 24.9, "transactions": 1120 },
+    { "month": "Sep", "quarter": "T3", "region": "Oriente", "channel": "App movil", "category": "Limpieza", "sales": 52000, "units": 3100, "margin": 30.2, "transactions": 330 },
+    { "month": "Oct", "quarter": "T4", "region": "Sur", "channel": "Tiendas fisicas", "category": "Bebidas", "sales": 128000, "units": 5000, "margin": 33.7, "transactions": 780 },
+    { "month": "Oct", "quarter": "T4", "region": "Centro", "channel": "E-commerce", "category": "Lacteos", "sales": 102000, "units": 7100, "margin": 22.1, "transactions": 690 },
+    { "month": "Nov", "quarter": "T4", "region": "Lima", "channel": "App movil", "category": "Limpieza", "sales": 136000, "units": 8200, "margin": 29.8, "transactions": 880 },
+    { "month": "Nov", "quarter": "T4", "region": "Norte", "channel": "E-commerce", "category": "Bebidas", "sales": 116000, "units": 4500, "margin": 35.0, "transactions": 720 },
+    { "month": "Dic", "quarter": "T4", "region": "Lima", "channel": "Tiendas fisicas", "category": "Lacteos", "sales": 214000, "units": 14400, "margin": 21.9, "transactions": 1560 },
+    { "month": "Dic", "quarter": "T4", "region": "Sur", "channel": "E-commerce", "category": "Abarrotes", "sales": 132000, "units": 9100, "margin": 25.6, "transactions": 900 }
+  ]
 }
