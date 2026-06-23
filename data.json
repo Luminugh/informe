@@ -1,0 +1,98 @@
+{
+  "metadata": {
+    "empresa": "Retail S.A.",
+    "curso": "Base de Datos II",
+    "docente": "Richard Yuri Mercado Rivas",
+    "fecha": "22/06/2026",
+    "periodo": "2025 - 2026",
+    "moneda": "PEN"
+  },
+  "kpis": [
+    {
+      "label": "Ingresos consolidados",
+      "value": 4285600,
+      "format": "currency",
+      "change": 18.4,
+      "status": "positive",
+      "icon": "chart-no-axes-combined"
+    },
+    {
+      "label": "Ticket promedio",
+      "value": 126.8,
+      "format": "currency",
+      "change": 7.1,
+      "status": "positive",
+      "icon": "receipt"
+    },
+    {
+      "label": "Registros integrados",
+      "value": 184250,
+      "format": "number",
+      "change": 32.6,
+      "status": "positive",
+      "icon": "database"
+    },
+    {
+      "label": "Calidad del dato",
+      "value": 96.7,
+      "format": "percent",
+      "change": 4.2,
+      "status": "positive",
+      "icon": "shield-check"
+    }
+  ],
+  "monthlySales": [
+    { "month": "Ene", "tiendas": 285000, "ecommerce": 118000 },
+    { "month": "Feb", "tiendas": 302000, "ecommerce": 134000 },
+    { "month": "Mar", "tiendas": 326000, "ecommerce": 149000 },
+    { "month": "Abr", "tiendas": 318000, "ecommerce": 162000 },
+    { "month": "May", "tiendas": 348000, "ecommerce": 176000 },
+    { "month": "Jun", "tiendas": 371000, "ecommerce": 193000 },
+    { "month": "Jul", "tiendas": 389000, "ecommerce": 214000 },
+    { "month": "Ago", "tiendas": 405000, "ecommerce": 227000 }
+  ],
+  "topProducts": [
+    { "name": "Arroz Superior 5kg", "category": "Abarrotes", "units": 18420, "revenue": 276300 },
+    { "name": "Aceite Vegetal 1L", "category": "Abarrotes", "units": 16380, "revenue": 147420 },
+    { "name": "Detergente Familiar", "category": "Limpieza", "units": 12950, "revenue": 181300 },
+    { "name": "Leche Evaporada Pack", "category": "Lacteos", "units": 11890, "revenue": 130790 },
+    { "name": "Cafe Premium 250g", "category": "Bebidas", "units": 9640, "revenue": 154240 }
+  ],
+  "channels": [
+    { "name": "Tiendas fisicas", "value": 68, "color": "#2563eb" },
+    { "name": "E-commerce", "value": 24, "color": "#14b8a6" },
+    { "name": "App movil", "value": 8, "color": "#f59e0b" }
+  ],
+  "regions": [
+    { "name": "Lima", "sales": 1840000, "stores": 16, "risk": "Bajo" },
+    { "name": "Norte", "sales": 921000, "stores": 9, "risk": "Medio" },
+    { "name": "Sur", "sales": 754000, "stores": 7, "risk": "Medio" },
+    { "name": "Centro", "sales": 516000, "stores": 5, "risk": "Bajo" },
+    { "name": "Oriente", "sales": 254600, "stores": 3, "risk": "Alto" }
+  ],
+  "etl": [
+    {
+      "phase": "Extraccion",
+      "detail": "Captura incremental nocturna desde SQL Server, PostgreSQL y archivos CSV.",
+      "records": 184250,
+      "quality": 91
+    },
+    {
+      "phase": "Transformacion",
+      "detail": "Homologacion de moneda, deduplicacion de SKU y normalizacion de clientes.",
+      "records": 178980,
+      "quality": 96
+    },
+    {
+      "phase": "Carga",
+      "detail": "Insercion controlada en dimensiones y tabla de hechos con bitacora de auditoria.",
+      "records": 178980,
+      "quality": 99
+    }
+  ],
+  "starSchema": {
+    "fact": "hecho_ventas",
+    "dimensions": ["dim_tiempo", "dim_producto", "dim_tienda", "dim_cliente", "dim_canal_venta"],
+    "measures": ["cantidad_vendida", "monto_total", "descuento_aplicado", "costo_total"]
+  }
+}
