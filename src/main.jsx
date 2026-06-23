@@ -3,123 +3,14 @@ import { createRoot } from "react-dom/client";
 import {
   BarChart3,
   Database,
-  FileText,
   LayoutDashboard,
   Network,
-  Printer,
   Receipt,
   ShieldCheck,
   Warehouse
 } from "lucide-react";
 import data from "../data.json";
 import "./index.css";
-
-const sqlServerScript = `CREATE DATABASE dwh_retail_sa;
-GO
-
-USE dwh_retail_sa;
-GO
-
-CREATE SCHEMA dwh;
-GO
-
-CREATE TABLE dwh.dim_tiempo (
-    id_tiempo INT NOT NULL PRIMARY KEY,
-    fecha DATE NOT NULL,
-    anio SMALLINT NOT NULL,
-    trimestre TINYINT NOT NULL,
-    mes TINYINT NOT NULL,
-    nombre_mes VARCHAR(20) NOT NULL,
-    dia_semana VARCHAR(20) NOT NULL
-);
-
-CREATE TABLE dwh.dim_producto (
-    id_producto INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
-    codigo_sku VARCHAR(50) NOT NULL UNIQUE,
-    nombre_producto VARCHAR(120) NOT NULL,
-    categoria VARCHAR(60) NOT NULL,
-    marca VARCHAR(60) NOT NULL,
-    precio_lista DECIMAL(10,2) NOT NULL
-);
-
-CREATE TABLE dwh.dim_tienda (
-    id_tienda INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
-    nombre_tienda VARCHAR(120) NOT NULL,
-    ciudad VARCHAR(60) NOT NULL,
-    region VARCHAR(60) NOT NULL,
-    gerente_tienda VARCHAR(120) NULL
-);
-
-CREATE TABLE dwh.dim_cliente (
-    id_cliente INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
-    codigo_cliente VARCHAR(50) NULL,
-    nombre_cliente VARCHAR(120) NOT NULL DEFAULT 'No Registrado',
-    segmento VARCHAR(60) NOT NULL DEFAULT 'General',
-    ciudad VARCHAR(60) NULL
-);
-
-CREATE TABLE dwh.dim_canal_venta (
-    id_canal INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
-    nombre_canal VARCHAR(50) NOT NULL,
-    descripcion VARCHAR(150) NULL
-);
-
-CREATE TABLE dwh.hecho_ventas (
-    id_venta BIGINT IDENTITY(1,1) NOT NULL PRIMARY KEY NONCLUSTERED,
-    id_tiempo INT NOT NULL,
-    id_producto INT NOT NULL,
-    id_tienda INT NULL,
-    id_cliente INT NULL,
-    id_canal INT NOT NULL,
-    cantidad_vendida INT NOT NULL,
-    monto_total DECIMAL(12,2) NOT NULL,
-    descuento_aplicado DECIMAL(10,2) NOT NULL DEFAULT 0,
-    costo_total DECIMAL(12,2) NOT NULL DEFAULT 0,
-    fecha_carga DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
-    CONSTRAINT fk_ventas_tiempo FOREIGN KEY (id_tiempo) REFERENCES dwh.dim_tiempo(id_tiempo),
-    CONSTRAINT fk_ventas_producto FOREIGN KEY (id_producto) REFERENCES dwh.dim_producto(id_producto),
-    CONSTRAINT fk_ventas_tienda FOREIGN KEY (id_tienda) REFERENCES dwh.dim_tienda(id_tienda),
-    CONSTRAINT fk_ventas_cliente FOREIGN KEY (id_cliente) REFERENCES dwh.dim_cliente(id_cliente),
-    CONSTRAINT fk_ventas_canal FOREIGN KEY (id_canal) REFERENCES dwh.dim_canal_venta(id_canal)
-);
-GO
-
-CREATE VIEW dwh.vw_resumen_ventas_mensual
-WITH SCHEMABINDING
-AS
-SELECT
-    t.anio,
-    t.mes,
-    p.categoria,
-    c.nombre_canal,
-    SUM(CONVERT(BIGINT, h.cantidad_vendida)) AS total_unidades,
-    SUM(h.monto_total) AS total_ingresos,
-    SUM(h.descuento_aplicado) AS total_descuentos,
-    COUNT_BIG(*) AS conteo_filas
-FROM dwh.hecho_ventas AS h
-INNER JOIN dwh.dim_tiempo AS t ON h.id_tiempo = t.id_tiempo
-INNER JOIN dwh.dim_producto AS p ON h.id_producto = p.id_producto
-INNER JOIN dwh.dim_canal_venta AS c ON h.id_canal = c.id_canal
-GROUP BY t.anio, t.mes, p.categoria, c.nombre_canal;
-GO
-
-CREATE UNIQUE CLUSTERED INDEX ix_vw_resumen_ventas_mensual
-ON dwh.vw_resumen_ventas_mensual (anio, mes, categoria, nombre_canal);
-GO`;
-
-const partitionScript = `CREATE PARTITION FUNCTION pf_ventas_tiempo (INT)
-AS RANGE RIGHT FOR VALUES (20260101, 20270101);
-GO
-
-CREATE PARTITION SCHEME ps_ventas_tiempo
-AS PARTITION pf_ventas_tiempo
-ALL TO ([PRIMARY]);
-GO
-
-CREATE CLUSTERED INDEX cx_hecho_ventas_tiempo
-ON dwh.hecho_ventas (id_tiempo, id_venta)
-ON ps_ventas_tiempo(id_tiempo);
-GO`;
 
 const iconMap = {
   "chart-no-axes-combined": BarChart3,
@@ -305,74 +196,6 @@ function StarSchema() {
   );
 }
 
-function Report() {
-  return (
-    <section id="informe" className="bg-white px-4 py-8 md:px-8">
-      <div className="mx-auto max-w-6xl space-y-6">
-        <header className="report-section p-6">
-          <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">Informe tecnico mejorado</p>
-          <h1 className="mt-2 text-3xl font-bold text-slate-950">Data Warehouse y Business Intelligence para {data.metadata.empresa}</h1>
-          <p className="mt-3 max-w-3xl leading-7 text-slate-600">
-            Propuesta integral para unificar datos de tiendas fisicas y comercio electronico en un repositorio analitico centralizado,
-            con calidad de datos, rendimiento, escalabilidad y soporte para decisiones gerenciales.
-          </p>
-          <div className="mt-5 grid gap-3 text-sm text-slate-600 md:grid-cols-3">
-            <span><b>Curso:</b> {data.metadata.curso}</span>
-            <span><b>Docente:</b> {data.metadata.docente}</span>
-            <span><b>Fecha:</b> {data.metadata.fecha}</span>
-          </div>
-        </header>
-
-        <article className="report-section p-6">
-          <h2 className="text-xl font-semibold text-slate-950">1. Introduccion y objetivos</h2>
-          <p className="mt-3 leading-7 text-slate-700">
-            Retail S.A. presenta dispersion de datos entre tiendas fisicas, e-commerce y archivos operativos. Esta separacion retrasa los
-            reportes comerciales, limita la vision historica y eleva el riesgo de decisiones basadas en informacion incompleta.
-          </p>
-          <p className="mt-3 leading-7 text-slate-700">
-            El objetivo es disenar un Data Warehouse centralizado que consolide las fuentes operacionales, aplique ETL incremental y alimente
-            dashboards de Power BI con indicadores confiables.
-          </p>
-        </article>
-
-        <article className="report-section p-6">
-          <h2 className="text-xl font-semibold text-slate-950">2. Arquitectura BI propuesta</h2>
-          <div className="mt-4 grid gap-4 md:grid-cols-4">
-            {[
-              ["Fuentes", "SQL Server, PostgreSQL, ERP, CRM y CSV."],
-              ["Staging", "Validacion, homologacion, deduplicacion y auditoria."],
-              ["DWH", "Modelo estrella con historico de ventas."],
-              ["BI", "Paneles ejecutivos, KPIs y analisis OLAP."]
-            ].map(([title, text], index) => (
-              <div className="rounded-lg border border-slate-200 bg-slate-50 p-4" key={title}>
-                <span className="text-xs font-bold uppercase text-blue-700">Nivel {index + 1}</span>
-                <h3 className="mt-2 font-semibold text-slate-900">{title}</h3>
-                <p className="mt-2 text-sm leading-6 text-slate-600">{text}</p>
-              </div>
-            ))}
-          </div>
-        </article>
-
-        <article className="report-section p-6">
-          <h2 className="text-xl font-semibold text-slate-950">3. SQL Server para el Data Warehouse</h2>
-          <p className="mt-3 leading-7 text-slate-700">
-            Script consistente para SQL Server con dimensiones, tabla de hechos, claves foraneas y vista indexada para resumen mensual.
-          </p>
-          <pre className="mono-block mt-4"><code>{sqlServerScript}</code></pre>
-        </article>
-
-        <article className="report-section p-6">
-          <h2 className="text-xl font-semibold text-slate-950">4. Particionamiento temporal</h2>
-          <p className="mt-3 leading-7 text-slate-700">
-            La tabla de hechos se optimiza por rango de fecha usando `id_tiempo`, reduciendo lecturas cuando Power BI consulta periodos especificos.
-          </p>
-          <pre className="mono-block mt-4"><code>{partitionScript}</code></pre>
-        </article>
-      </div>
-    </section>
-  );
-}
-
 function App() {
   const totalSales = data.monthlySales.reduce((sum, row) => sum + row.tiendas + row.ecommerce, 0);
 
@@ -389,8 +212,7 @@ function App() {
         <nav className="mt-5 space-y-2">
           {[
             ["dashboard", "Dashboard", LayoutDashboard],
-            ["modelo", "Modelo DWH", Network],
-            ["informe", "Informe", FileText]
+            ["modelo", "Modelo DWH", Network]
           ].map(([id, label, Icon]) => (
             <a className="flex items-center gap-3 rounded-lg px-3 py-3 text-slate-300 hover:bg-white/10 hover:text-white" href={`#${id}`} key={id}>
               <Icon size={18} />
@@ -417,10 +239,6 @@ function App() {
                   Panel basado en datos simulados para demostrar integracion ETL, modelo estrella, rendimiento analitico y visualizacion ejecutiva.
                 </p>
               </div>
-              <button className="no-print inline-flex items-center gap-2 rounded-lg bg-slate-950 px-4 py-3 text-sm font-semibold text-white" onClick={() => window.print()}>
-                <Printer size={18} />
-                Imprimir informe
-              </button>
             </div>
 
             <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -464,8 +282,6 @@ function App() {
             <StarSchema />
           </div>
         </section>
-
-        <Report />
       </main>
     </div>
   );
