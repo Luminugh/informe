@@ -224,6 +224,14 @@ function OlapControls({ filters, onChange }) {
     ["channel", "Canal"],
     ["category", "Categoria"]
   ];
+  const updateRange = (key, value) => {
+    const nextFilters = { ...filters, [key]: Number(value) };
+    if (nextFilters.startMonth > nextFilters.endMonth) {
+      if (key === "startMonth") nextFilters.endMonth = nextFilters.startMonth;
+      if (key === "endMonth") nextFilters.startMonth = nextFilters.endMonth;
+    }
+    onChange(nextFilters);
+  };
 
   return (
     <section id="olap" className="panel p-5">
@@ -231,9 +239,9 @@ function OlapControls({ filters, onChange }) {
         <div>
           <p className="text-sm font-bold uppercase tracking-wide text-blue-700">Analisis OLAP</p>
           <h2 className="mt-1 text-xl font-semibold text-slate-950">Cubo multidimensional de ventas</h2>
-          <p className="mt-1 text-sm text-slate-500">Filtra por dimensiones para recalcular los indicadores y graficos estadisticos.</p>
+          <p className="mt-1 text-sm text-slate-500">Filtra por dimensiones e intervalo de tiempo para recalcular indicadores y graficos.</p>
         </div>
-        <div className="grid w-full gap-3 md:w-auto md:grid-cols-3">
+        <div className="grid w-full gap-3 md:w-auto md:grid-cols-5">
           {fields.map(([key, label]) => (
             <label className="text-sm font-medium text-slate-600" key={key}>
               {label}
@@ -249,6 +257,30 @@ function OlapControls({ filters, onChange }) {
               </select>
             </label>
           ))}
+          <label className="text-sm font-medium text-slate-600">
+            Desde
+            <select
+              className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-900 outline-none focus:border-blue-500"
+              value={filters.startMonth}
+              onChange={(event) => updateRange("startMonth", event.target.value)}
+            >
+              {dimensions.time.map((time) => (
+                <option value={time.monthNumber} key={time.id}>{time.month}</option>
+              ))}
+            </select>
+          </label>
+          <label className="text-sm font-medium text-slate-600">
+            Hasta
+            <select
+              className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-900 outline-none focus:border-blue-500"
+              value={filters.endMonth}
+              onChange={(event) => updateRange("endMonth", event.target.value)}
+            >
+              {dimensions.time.map((time) => (
+                <option value={time.monthNumber} key={time.id}>{time.month}</option>
+              ))}
+            </select>
+          </label>
         </div>
       </div>
     </section>
@@ -286,8 +318,10 @@ function OlapMetricCards({ rows }) {
   );
 }
 
-function TrendChart({ rows }) {
-  const monthOrder = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+function TrendChart({ rows, startMonth, endMonth }) {
+  const monthOrder = dimensions.time
+    .filter((time) => time.monthNumber >= startMonth && time.monthNumber <= endMonth)
+    .map((time) => time.month);
   const grouped = groupBySum(rows, "month");
   const points = monthOrder.map((month) => ({ month, sales: grouped[month] || 0 }));
   const max = Math.max(...points.map((row) => row.sales), 1);
@@ -295,7 +329,7 @@ function TrendChart({ rows }) {
   const height = 240;
   const padding = 34;
   const coords = points.map((row, index) => {
-    const x = padding + (index / (points.length - 1)) * (width - padding * 2);
+    const x = points.length === 1 ? width / 2 : padding + (index / (points.length - 1)) * (width - padding * 2);
     const y = height - padding - (row.sales / max) * (height - padding * 2);
     return { ...row, x, y };
   });
@@ -541,7 +575,9 @@ function App() {
   const [filters, setFilters] = useState({
     region: "Todos",
     channel: "Todos",
-    category: "Todos"
+    category: "Todos",
+    startMonth: dimensions.time[0].monthNumber,
+    endMonth: dimensions.time[dimensions.time.length - 1].monthNumber
   });
   const totalSales = sum(factRows, "sales");
   const totalTransactions = sum(factRows, "transactions");
@@ -589,7 +625,9 @@ function App() {
       return (
         (filters.region === "Todos" || row.region === filters.region) &&
         (filters.channel === "Todos" || row.channel === filters.channel) &&
-        (filters.category === "Todos" || row.category === filters.category)
+        (filters.category === "Todos" || row.category === filters.category) &&
+        row.monthNumber >= filters.startMonth &&
+        row.monthNumber <= filters.endMonth
       );
     });
   }, [filters]);
@@ -674,7 +712,7 @@ function App() {
               <OlapControls filters={filters} onChange={setFilters} />
               <OlapMetricCards rows={filteredFacts} />
               <div className="grid gap-6 xl:grid-cols-[1.45fr_1fr]">
-                <TrendChart rows={filteredFacts} />
+              <TrendChart rows={filteredFacts} startMonth={filters.startMonth} endMonth={filters.endMonth} />
                 <ParetoChart rows={filteredFacts} />
               </div>
               <div className="grid gap-6 xl:grid-cols-[1.1fr_1fr]">
