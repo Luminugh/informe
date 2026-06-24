@@ -1,124 +1,106 @@
 {
   "metadata": {
-    "empresa": "Retail S.A.",
-    "curso": "Base de Datos II",
-    "docente": "Richard Yuri Mercado Rivas",
-    "fecha": "22/06/2026",
-    "periodo": "2025 - 2026",
-    "moneda": "PEN"
+    "company": "Retail S.A.",
+    "course": "Base de Datos II",
+    "teacher": "Richard Yuri Mercado Rivas",
+    "period": "2026",
+    "currency": "PEN",
+    "source": "Simulacion operacional consolidada para DWH y OLAP",
+    "lastUpdate": "2026-06-23"
   },
-  "kpis": [
-    {
-      "label": "Ingresos consolidados",
-      "value": 4285600,
-      "format": "currency",
-      "change": 18.4,
-      "status": "positive",
-      "icon": "chart-no-axes-combined"
-    },
-    {
-      "label": "Ticket promedio",
-      "value": 126.8,
-      "format": "currency",
-      "change": 7.1,
-      "status": "positive",
-      "icon": "receipt"
-    },
-    {
-      "label": "Registros integrados",
-      "value": 184250,
-      "format": "number",
-      "change": 32.6,
-      "status": "positive",
-      "icon": "database"
-    },
-    {
-      "label": "Calidad del dato",
-      "value": 96.7,
-      "format": "percent",
-      "change": 4.2,
-      "status": "positive",
-      "icon": "shield-check"
-    }
-  ],
-  "monthlySales": [
-    { "month": "Ene", "tiendas": 285000, "ecommerce": 118000 },
-    { "month": "Feb", "tiendas": 302000, "ecommerce": 134000 },
-    { "month": "Mar", "tiendas": 326000, "ecommerce": 149000 },
-    { "month": "Abr", "tiendas": 318000, "ecommerce": 162000 },
-    { "month": "May", "tiendas": 348000, "ecommerce": 176000 },
-    { "month": "Jun", "tiendas": 371000, "ecommerce": 193000 },
-    { "month": "Jul", "tiendas": 389000, "ecommerce": 214000 },
-    { "month": "Ago", "tiendas": 405000, "ecommerce": 227000 }
-  ],
-  "topProducts": [
-    { "name": "Arroz Superior 5kg", "category": "Abarrotes", "units": 18420, "revenue": 276300 },
-    { "name": "Aceite Vegetal 1L", "category": "Abarrotes", "units": 16380, "revenue": 147420 },
-    { "name": "Detergente Familiar", "category": "Limpieza", "units": 12950, "revenue": 181300 },
-    { "name": "Leche Evaporada Pack", "category": "Lacteos", "units": 11890, "revenue": 130790 },
-    { "name": "Cafe Premium 250g", "category": "Bebidas", "units": 9640, "revenue": 154240 }
-  ],
-  "channels": [
-    { "name": "Tiendas fisicas", "value": 68, "color": "#2563eb" },
-    { "name": "E-commerce", "value": 24, "color": "#14b8a6" },
-    { "name": "App movil", "value": 8, "color": "#f59e0b" }
-  ],
-  "regions": [
-    { "name": "Lima", "sales": 1840000, "stores": 16, "risk": "Bajo" },
-    { "name": "Norte", "sales": 921000, "stores": 9, "risk": "Medio" },
-    { "name": "Sur", "sales": 754000, "stores": 7, "risk": "Medio" },
-    { "name": "Centro", "sales": 516000, "stores": 5, "risk": "Bajo" },
-    { "name": "Oriente", "sales": 254600, "stores": 3, "risk": "Alto" }
-  ],
-  "etl": [
-    {
-      "phase": "Extraccion",
-      "detail": "Captura incremental nocturna desde SQL Server, PostgreSQL y archivos CSV.",
-      "records": 184250,
-      "quality": 91
-    },
-    {
-      "phase": "Transformacion",
-      "detail": "Homologacion de moneda, deduplicacion de SKU y normalizacion de clientes.",
-      "records": 178980,
-      "quality": 96
-    },
-    {
-      "phase": "Carga",
-      "detail": "Insercion controlada en dimensiones y tabla de hechos con bitacora de auditoria.",
-      "records": 178980,
-      "quality": 99
-    }
-  ],
-  "starSchema": {
+  "dimensions": {
+    "time": [
+      { "id": "2026-01", "month": "Ene", "monthNumber": 1, "quarter": "T1" },
+      { "id": "2026-02", "month": "Feb", "monthNumber": 2, "quarter": "T1" },
+      { "id": "2026-03", "month": "Mar", "monthNumber": 3, "quarter": "T1" },
+      { "id": "2026-04", "month": "Abr", "monthNumber": 4, "quarter": "T2" },
+      { "id": "2026-05", "month": "May", "monthNumber": 5, "quarter": "T2" },
+      { "id": "2026-06", "month": "Jun", "monthNumber": 6, "quarter": "T2" },
+      { "id": "2026-07", "month": "Jul", "monthNumber": 7, "quarter": "T3" },
+      { "id": "2026-08", "month": "Ago", "monthNumber": 8, "quarter": "T3" },
+      { "id": "2026-09", "month": "Sep", "monthNumber": 9, "quarter": "T3" },
+      { "id": "2026-10", "month": "Oct", "monthNumber": 10, "quarter": "T4" },
+      { "id": "2026-11", "month": "Nov", "monthNumber": 11, "quarter": "T4" },
+      { "id": "2026-12", "month": "Dic", "monthNumber": 12, "quarter": "T4" }
+    ],
+    "regions": [
+      { "id": "REG-LIM", "name": "Lima", "stores": 16, "risk": "Bajo" },
+      { "id": "REG-NOR", "name": "Norte", "stores": 9, "risk": "Medio" },
+      { "id": "REG-SUR", "name": "Sur", "stores": 7, "risk": "Medio" },
+      { "id": "REG-CEN", "name": "Centro", "stores": 5, "risk": "Bajo" },
+      { "id": "REG-ORI", "name": "Oriente", "stores": 3, "risk": "Alto" }
+    ],
+    "channels": [
+      { "id": "CAN-TIE", "name": "Tiendas fisicas", "color": "#2563eb" },
+      { "id": "CAN-ECO", "name": "E-commerce", "color": "#14b8a6" },
+      { "id": "CAN-APP", "name": "App movil", "color": "#f59e0b" }
+    ],
+    "categories": [
+      { "id": "CAT-ABA", "name": "Abarrotes" },
+      { "id": "CAT-LIM", "name": "Limpieza" },
+      { "id": "CAT-BEB", "name": "Bebidas" },
+      { "id": "CAT-LAC", "name": "Lacteos" }
+    ],
+    "products": [
+      { "id": "SKU-001", "name": "Arroz Superior 5kg", "categoryId": "CAT-ABA", "brand": "Andes" },
+      { "id": "SKU-002", "name": "Aceite Vegetal 1L", "categoryId": "CAT-ABA", "brand": "Sol Norte" },
+      { "id": "SKU-003", "name": "Detergente Familiar", "categoryId": "CAT-LIM", "brand": "Brillo Max" },
+      { "id": "SKU-004", "name": "Leche Evaporada Pack", "categoryId": "CAT-LAC", "brand": "La Granja" },
+      { "id": "SKU-005", "name": "Cafe Premium 250g", "categoryId": "CAT-BEB", "brand": "Altura" },
+      { "id": "SKU-006", "name": "Bebida Isotonica 500ml", "categoryId": "CAT-BEB", "brand": "Pulse" }
+    ]
+  },
+  "model": {
     "fact": "hecho_ventas",
     "dimensions": ["dim_tiempo", "dim_producto", "dim_tienda", "dim_cliente", "dim_canal_venta"],
-    "measures": ["cantidad_vendida", "monto_total", "descuento_aplicado", "costo_total"]
+    "measures": ["cantidad_vendida", "monto_total", "descuento_aplicado", "costo_total", "margen_porcentaje"]
   },
-  "olapFacts": [
-    { "month": "Ene", "quarter": "T1", "region": "Lima", "channel": "Tiendas fisicas", "category": "Abarrotes", "sales": 188000, "units": 12400, "margin": 23.4, "transactions": 1640 },
-    { "month": "Ene", "quarter": "T1", "region": "Norte", "channel": "E-commerce", "category": "Limpieza", "sales": 76000, "units": 4900, "margin": 28.1, "transactions": 720 },
-    { "month": "Feb", "quarter": "T1", "region": "Lima", "channel": "App movil", "category": "Bebidas", "sales": 92000, "units": 3600, "margin": 31.6, "transactions": 610 },
-    { "month": "Feb", "quarter": "T1", "region": "Sur", "channel": "Tiendas fisicas", "category": "Lacteos", "sales": 124000, "units": 8400, "margin": 20.8, "transactions": 930 },
-    { "month": "Mar", "quarter": "T1", "region": "Centro", "channel": "E-commerce", "category": "Abarrotes", "sales": 98000, "units": 7100, "margin": 24.7, "transactions": 820 },
-    { "month": "Mar", "quarter": "T1", "region": "Oriente", "channel": "Tiendas fisicas", "category": "Limpieza", "sales": 64000, "units": 3900, "margin": 27.3, "transactions": 520 },
-    { "month": "Abr", "quarter": "T2", "region": "Lima", "channel": "E-commerce", "category": "Lacteos", "sales": 142000, "units": 9600, "margin": 22.5, "transactions": 1080 },
-    { "month": "Abr", "quarter": "T2", "region": "Norte", "channel": "Tiendas fisicas", "category": "Bebidas", "sales": 112000, "units": 4300, "margin": 33.2, "transactions": 690 },
-    { "month": "May", "quarter": "T2", "region": "Sur", "channel": "App movil", "category": "Abarrotes", "sales": 88000, "units": 6200, "margin": 25.1, "transactions": 570 },
-    { "month": "May", "quarter": "T2", "region": "Centro", "channel": "Tiendas fisicas", "category": "Limpieza", "sales": 134000, "units": 8100, "margin": 29.4, "transactions": 860 },
-    { "month": "Jun", "quarter": "T2", "region": "Lima", "channel": "Tiendas fisicas", "category": "Abarrotes", "sales": 226000, "units": 14900, "margin": 24.2, "transactions": 1810 },
-    { "month": "Jun", "quarter": "T2", "region": "Oriente", "channel": "E-commerce", "category": "Bebidas", "sales": 69000, "units": 2600, "margin": 32.8, "transactions": 410 },
-    { "month": "Jul", "quarter": "T3", "region": "Norte", "channel": "App movil", "category": "Lacteos", "sales": 96000, "units": 6600, "margin": 21.4, "transactions": 620 },
-    { "month": "Jul", "quarter": "T3", "region": "Sur", "channel": "E-commerce", "category": "Limpieza", "sales": 118000, "units": 7200, "margin": 28.9, "transactions": 760 },
-    { "month": "Ago", "quarter": "T3", "region": "Lima", "channel": "E-commerce", "category": "Bebidas", "sales": 176000, "units": 6800, "margin": 34.1, "transactions": 1040 },
-    { "month": "Ago", "quarter": "T3", "region": "Centro", "channel": "App movil", "category": "Abarrotes", "sales": 84000, "units": 5900, "margin": 23.8, "transactions": 540 },
-    { "month": "Sep", "quarter": "T3", "region": "Norte", "channel": "Tiendas fisicas", "category": "Abarrotes", "sales": 154000, "units": 10300, "margin": 24.9, "transactions": 1120 },
-    { "month": "Sep", "quarter": "T3", "region": "Oriente", "channel": "App movil", "category": "Limpieza", "sales": 52000, "units": 3100, "margin": 30.2, "transactions": 330 },
-    { "month": "Oct", "quarter": "T4", "region": "Sur", "channel": "Tiendas fisicas", "category": "Bebidas", "sales": 128000, "units": 5000, "margin": 33.7, "transactions": 780 },
-    { "month": "Oct", "quarter": "T4", "region": "Centro", "channel": "E-commerce", "category": "Lacteos", "sales": 102000, "units": 7100, "margin": 22.1, "transactions": 690 },
-    { "month": "Nov", "quarter": "T4", "region": "Lima", "channel": "App movil", "category": "Limpieza", "sales": 136000, "units": 8200, "margin": 29.8, "transactions": 880 },
-    { "month": "Nov", "quarter": "T4", "region": "Norte", "channel": "E-commerce", "category": "Bebidas", "sales": 116000, "units": 4500, "margin": 35.0, "transactions": 720 },
-    { "month": "Dic", "quarter": "T4", "region": "Lima", "channel": "Tiendas fisicas", "category": "Lacteos", "sales": 214000, "units": 14400, "margin": 21.9, "transactions": 1560 },
-    { "month": "Dic", "quarter": "T4", "region": "Sur", "channel": "E-commerce", "category": "Abarrotes", "sales": 132000, "units": 9100, "margin": 25.6, "transactions": 900 }
+  "processes": {
+    "etl": [
+      {
+        "phase": "Extraccion",
+        "detail": "Captura incremental nocturna desde SQL Server, PostgreSQL y archivos CSV.",
+        "records": 184250,
+        "quality": 91
+      },
+      {
+        "phase": "Transformacion",
+        "detail": "Homologacion de moneda, deduplicacion de SKU y normalizacion de clientes.",
+        "records": 178980,
+        "quality": 96
+      },
+      {
+        "phase": "Carga",
+        "detail": "Insercion controlada en dimensiones y tabla de hechos con bitacora de auditoria.",
+        "records": 178980,
+        "quality": 99
+      }
+    ]
+  },
+  "facts": [
+    { "id": "V-0001", "timeId": "2026-01", "regionId": "REG-LIM", "channelId": "CAN-TIE", "productId": "SKU-001", "sales": 188000, "cost": 144008, "discount": 7600, "units": 12400, "transactions": 1640, "dataQuality": 97 },
+    { "id": "V-0002", "timeId": "2026-01", "regionId": "REG-NOR", "channelId": "CAN-ECO", "productId": "SKU-003", "sales": 76000, "cost": 54644, "discount": 3100, "units": 4900, "transactions": 720, "dataQuality": 95 },
+    { "id": "V-0003", "timeId": "2026-02", "regionId": "REG-LIM", "channelId": "CAN-APP", "productId": "SKU-005", "sales": 92000, "cost": 62928, "discount": 4200, "units": 3600, "transactions": 610, "dataQuality": 96 },
+    { "id": "V-0004", "timeId": "2026-02", "regionId": "REG-SUR", "channelId": "CAN-TIE", "productId": "SKU-004", "sales": 124000, "cost": 98108, "discount": 5200, "units": 8400, "transactions": 930, "dataQuality": 94 },
+    { "id": "V-0005", "timeId": "2026-03", "regionId": "REG-CEN", "channelId": "CAN-ECO", "productId": "SKU-002", "sales": 98000, "cost": 73794, "discount": 3600, "units": 7100, "transactions": 820, "dataQuality": 97 },
+    { "id": "V-0006", "timeId": "2026-03", "regionId": "REG-ORI", "channelId": "CAN-TIE", "productId": "SKU-003", "sales": 64000, "cost": 46528, "discount": 2400, "units": 3900, "transactions": 520, "dataQuality": 90 },
+    { "id": "V-0007", "timeId": "2026-04", "regionId": "REG-LIM", "channelId": "CAN-ECO", "productId": "SKU-004", "sales": 142000, "cost": 110050, "discount": 6100, "units": 9600, "transactions": 1080, "dataQuality": 98 },
+    { "id": "V-0008", "timeId": "2026-04", "regionId": "REG-NOR", "channelId": "CAN-TIE", "productId": "SKU-006", "sales": 112000, "cost": 74816, "discount": 4600, "units": 4300, "transactions": 690, "dataQuality": 96 },
+    { "id": "V-0009", "timeId": "2026-05", "regionId": "REG-SUR", "channelId": "CAN-APP", "productId": "SKU-001", "sales": 88000, "cost": 65912, "discount": 3300, "units": 6200, "transactions": 570, "dataQuality": 95 },
+    { "id": "V-0010", "timeId": "2026-05", "regionId": "REG-CEN", "channelId": "CAN-TIE", "productId": "SKU-003", "sales": 134000, "cost": 94596, "discount": 5400, "units": 8100, "transactions": 860, "dataQuality": 97 },
+    { "id": "V-0011", "timeId": "2026-06", "regionId": "REG-LIM", "channelId": "CAN-TIE", "productId": "SKU-002", "sales": 226000, "cost": 171308, "discount": 8100, "units": 14900, "transactions": 1810, "dataQuality": 99 },
+    { "id": "V-0012", "timeId": "2026-06", "regionId": "REG-ORI", "channelId": "CAN-ECO", "productId": "SKU-005", "sales": 69000, "cost": 46368, "discount": 2500, "units": 2600, "transactions": 410, "dataQuality": 92 },
+    { "id": "V-0013", "timeId": "2026-07", "regionId": "REG-NOR", "channelId": "CAN-APP", "productId": "SKU-004", "sales": 96000, "cost": 75456, "discount": 3900, "units": 6600, "transactions": 620, "dataQuality": 96 },
+    { "id": "V-0014", "timeId": "2026-07", "regionId": "REG-SUR", "channelId": "CAN-ECO", "productId": "SKU-003", "sales": 118000, "cost": 83898, "discount": 4700, "units": 7200, "transactions": 760, "dataQuality": 95 },
+    { "id": "V-0015", "timeId": "2026-08", "regionId": "REG-LIM", "channelId": "CAN-ECO", "productId": "SKU-006", "sales": 176000, "cost": 115984, "discount": 6900, "units": 6800, "transactions": 1040, "dataQuality": 98 },
+    { "id": "V-0016", "timeId": "2026-08", "regionId": "REG-CEN", "channelId": "CAN-APP", "productId": "SKU-001", "sales": 84000, "cost": 64008, "discount": 3200, "units": 5900, "transactions": 540, "dataQuality": 94 },
+    { "id": "V-0017", "timeId": "2026-09", "regionId": "REG-NOR", "channelId": "CAN-TIE", "productId": "SKU-002", "sales": 154000, "cost": 115654, "discount": 5800, "units": 10300, "transactions": 1120, "dataQuality": 97 },
+    { "id": "V-0018", "timeId": "2026-09", "regionId": "REG-ORI", "channelId": "CAN-APP", "productId": "SKU-003", "sales": 52000, "cost": 36296, "discount": 2100, "units": 3100, "transactions": 330, "dataQuality": 91 },
+    { "id": "V-0019", "timeId": "2026-10", "regionId": "REG-SUR", "channelId": "CAN-TIE", "productId": "SKU-005", "sales": 128000, "cost": 84864, "discount": 5100, "units": 5000, "transactions": 780, "dataQuality": 96 },
+    { "id": "V-0020", "timeId": "2026-10", "regionId": "REG-CEN", "channelId": "CAN-ECO", "productId": "SKU-004", "sales": 102000, "cost": 79458, "discount": 3800, "units": 7100, "transactions": 690, "dataQuality": 95 },
+    { "id": "V-0021", "timeId": "2026-11", "regionId": "REG-LIM", "channelId": "CAN-APP", "productId": "SKU-003", "sales": 136000, "cost": 95472, "discount": 5500, "units": 8200, "transactions": 880, "dataQuality": 98 },
+    { "id": "V-0022", "timeId": "2026-11", "regionId": "REG-NOR", "channelId": "CAN-ECO", "productId": "SKU-006", "sales": 116000, "cost": 75400, "discount": 4400, "units": 4500, "transactions": 720, "dataQuality": 96 },
+    { "id": "V-0023", "timeId": "2026-12", "regionId": "REG-LIM", "channelId": "CAN-TIE", "productId": "SKU-004", "sales": 214000, "cost": 167134, "discount": 8600, "units": 14400, "transactions": 1560, "dataQuality": 99 },
+    { "id": "V-0024", "timeId": "2026-12", "regionId": "REG-SUR", "channelId": "CAN-ECO", "productId": "SKU-001", "sales": 132000, "cost": 98208, "discount": 4900, "units": 9100, "transactions": 900, "dataQuality": 96 }
   ]
 }

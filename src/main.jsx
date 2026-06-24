@@ -16,12 +16,32 @@ import {
 import data from "../data.json";
 import "./index.css";
 
-const iconMap = {
-  "chart-no-axes-combined": BarChart3,
-  receipt: Receipt,
-  database: Database,
-  "shield-check": ShieldCheck
-};
+const dimensions = data.dimensions;
+const timeById = Object.fromEntries(dimensions.time.map((item) => [item.id, item]));
+const regionById = Object.fromEntries(dimensions.regions.map((item) => [item.id, item]));
+const channelById = Object.fromEntries(dimensions.channels.map((item) => [item.id, item]));
+const categoryById = Object.fromEntries(dimensions.categories.map((item) => [item.id, item]));
+const productById = Object.fromEntries(dimensions.products.map((item) => [item.id, item]));
+const factRows = data.facts.map((fact) => {
+  const product = productById[fact.productId];
+  const category = categoryById[product.categoryId];
+  const margin = fact.sales ? ((fact.sales - fact.cost) / fact.sales) * 100 : 0;
+
+  return {
+    ...fact,
+    month: timeById[fact.timeId].month,
+    monthNumber: timeById[fact.timeId].monthNumber,
+    quarter: timeById[fact.timeId].quarter,
+    region: regionById[fact.regionId].name,
+    stores: regionById[fact.regionId].stores,
+    risk: regionById[fact.regionId].risk,
+    channel: channelById[fact.channelId].name,
+    channelColor: channelById[fact.channelId].color,
+    product: product.name,
+    category: category.name,
+    margin
+  };
+});
 
 function money(value) {
   return new Intl.NumberFormat("es-PE", {
@@ -56,32 +76,35 @@ function groupBySum(rows, key, valueKey = "sales") {
   }, {});
 }
 
-function metricValue(item) {
-  if (item.format === "currency") return money(item.value);
-  if (item.format === "percent") return `${item.value.toFixed(1)}%`;
-  return number(item.value);
-}
-
 function KpiCard({ item }) {
-  const Icon = iconMap[item.icon] || BarChart3;
+  const Icon = item.Icon;
   return (
     <article className="panel p-5">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-sm font-medium text-slate-500">{item.label}</p>
-          <p className="mt-2 text-2xl font-semibold text-slate-950">{metricValue(item)}</p>
+          <p className="mt-2 text-2xl font-semibold text-slate-950">{item.value}</p>
         </div>
-        <div className="grid h-10 w-10 place-items-center rounded-lg bg-blue-50 text-blue-700">
+        <div className={`grid h-10 w-10 place-items-center rounded-lg ${item.tone}`}>
           <Icon size={20} />
         </div>
       </div>
-      <p className="mt-4 text-sm font-medium text-emerald-700">+{item.change}% frente al periodo anterior</p>
+      <p className="mt-4 text-sm font-medium text-slate-500">{item.helper}</p>
     </article>
   );
 }
 
-function SalesChart() {
-  const max = Math.max(...data.monthlySales.map((row) => row.tiendas + row.ecommerce));
+function SalesChart({ rows }) {
+  const monthOrder = dimensions.time.map((item) => item.month);
+  const channels = dimensions.channels.map((item) => item.name);
+  const grouped = {};
+  rows.forEach((row) => {
+    grouped[row.month] ||= {};
+    grouped[row.month][row.channel] = (grouped[row.month][row.channel] || 0) + row.sales;
+  });
+  const totals = monthOrder.map((month) => channels.reduce((acc, channel) => acc + (grouped[month]?.[channel] || 0), 0));
+  const max = Math.max(...totals, 1);
+
   return (
     <section className="panel p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -92,14 +115,19 @@ function SalesChart() {
         <span className="rounded-md bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">Soles</span>
       </div>
       <div className="mt-6 space-y-4">
-        {data.monthlySales.map((row) => {
-          const total = row.tiendas + row.ecommerce;
+        {monthOrder.map((month, index) => {
+          const total = totals[index];
           return (
-            <div className="grid grid-cols-[3rem_1fr_6rem] items-center gap-3" key={row.month}>
-              <span className="text-sm font-semibold text-slate-600">{row.month}</span>
+            <div className="grid grid-cols-[3rem_1fr_6rem] items-center gap-3" key={month}>
+              <span className="text-sm font-semibold text-slate-600">{month}</span>
               <div className="bar-track flex">
-                <div className="h-full bg-blue-600" style={{ width: `${(row.tiendas / max) * 100}%` }} />
-                <div className="h-full bg-teal-500" style={{ width: `${(row.ecommerce / max) * 100}%` }} />
+                {dimensions.channels.map((channel) => (
+                  <div
+                    className="h-full"
+                    key={channel.id}
+                    style={{ width: `${((grouped[month]?.[channel.name] || 0) / max) * 100}%`, background: channel.color }}
+                  />
+                ))}
               </div>
               <span className="text-right text-sm font-semibold text-slate-700">{money(total)}</span>
             </div>
@@ -107,37 +135,54 @@ function SalesChart() {
         })}
       </div>
       <div className="mt-5 flex gap-5 text-sm text-slate-600">
-        <span className="flex items-center gap-2"><b className="h-3 w-3 rounded-sm bg-blue-600" />Tiendas</span>
-        <span className="flex items-center gap-2"><b className="h-3 w-3 rounded-sm bg-teal-500" />Digital</span>
-      </div>
-    </section>
-  );
-}
-
-function ChannelPanel() {
-  return (
-    <section className="panel p-5">
-      <h2 className="text-lg font-semibold text-slate-950">Participacion por canal</h2>
-      <p className="text-sm text-slate-500">Distribucion estimada del ingreso consolidado.</p>
-      <div className="mt-6 space-y-5">
-        {data.channels.map((row) => (
-          <div key={row.name}>
-            <div className="mb-2 flex justify-between text-sm">
-              <span className="font-medium text-slate-700">{row.name}</span>
-              <span className="font-semibold text-slate-900">{row.value}%</span>
-            </div>
-            <div className="bar-track">
-              <div className="h-full rounded-full" style={{ width: `${row.value}%`, background: row.color }} />
-            </div>
-          </div>
+        {dimensions.channels.map((channel) => (
+          <span className="flex items-center gap-2" key={channel.id}>
+            <b className="h-3 w-3 rounded-sm" style={{ background: channel.color }} />
+            {channel.name}
+          </span>
         ))}
       </div>
     </section>
   );
 }
 
-function ProductTable() {
-  const max = Math.max(...data.topProducts.map((row) => row.units));
+function ChannelPanel({ rows }) {
+  const grouped = groupBySum(rows, "channel");
+  const total = sum(rows, "sales") || 1;
+
+  return (
+    <section className="panel p-5">
+      <h2 className="text-lg font-semibold text-slate-950">Participacion por canal</h2>
+      <p className="text-sm text-slate-500">Distribucion estimada del ingreso consolidado.</p>
+      <div className="mt-6 space-y-5">
+        {dimensions.channels.map((channel) => {
+          const value = grouped[channel.name] || 0;
+          const percent = (value / total) * 100;
+          return (
+          <div key={channel.id}>
+            <div className="mb-2 flex justify-between text-sm">
+              <span className="font-medium text-slate-700">{channel.name}</span>
+              <span className="font-semibold text-slate-900">{percent.toFixed(1)}%</span>
+            </div>
+            <div className="bar-track">
+              <div className="h-full rounded-full" style={{ width: `${percent}%`, background: channel.color }} />
+            </div>
+          </div>
+        );})}
+      </div>
+    </section>
+  );
+}
+
+function ProductTable({ rows }) {
+  const grouped = Object.values(rows.reduce((acc, row) => {
+    acc[row.product] ||= { name: row.product, category: row.category, units: 0, revenue: 0 };
+    acc[row.product].units += row.units;
+    acc[row.product].revenue += row.sales;
+    return acc;
+  }, {})).sort((a, b) => b.revenue - a.revenue).slice(0, 6);
+  const max = Math.max(...grouped.map((row) => row.units), 1);
+
   return (
     <section className="panel p-5">
       <h2 className="text-lg font-semibold text-slate-950">Top productos</h2>
@@ -153,7 +198,7 @@ function ProductTable() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {data.topProducts.map((row) => (
+            {grouped.map((row) => (
               <tr key={row.name}>
                 <td className="py-3 font-medium text-slate-800">
                   {row.name}
@@ -198,7 +243,7 @@ function OlapControls({ filters, onChange }) {
                 onChange={(event) => onChange({ ...filters, [key]: event.target.value })}
               >
                 <option value="Todos">Todos</option>
-                {uniqueValues(data.olapFacts, key).map((value) => (
+                {uniqueValues(factRows, key).map((value) => (
                   <option value={value} key={value}>{value}</option>
                 ))}
               </select>
@@ -322,8 +367,8 @@ function ParetoChart({ rows }) {
 }
 
 function Heatmap({ rows }) {
-  const regions = uniqueValues(data.olapFacts, "region");
-  const categories = uniqueValues(data.olapFacts, "category");
+  const regions = dimensions.regions.map((region) => region.name);
+  const categories = dimensions.categories.map((category) => category.name);
   const matrix = {};
   rows.forEach((row) => {
     const key = `${row.region}-${row.category}`;
@@ -364,7 +409,8 @@ function Heatmap({ rows }) {
 }
 
 function ScatterPlot({ rows }) {
-  const regionTotals = uniqueValues(data.olapFacts, "region").map((region) => {
+  const regionTotals = dimensions.regions.map((regionDimension) => {
+    const region = regionDimension.name;
     const regionRows = rows.filter((row) => row.region === region);
     return {
       region,
@@ -404,8 +450,8 @@ function ScatterPlot({ rows }) {
 }
 
 function PivotTable({ rows }) {
-  const regions = uniqueValues(data.olapFacts, "region");
-  const channels = uniqueValues(data.olapFacts, "channel");
+  const regions = dimensions.regions.map((region) => region.name);
+  const channels = dimensions.channels.map((channel) => channel.name);
   const matrix = {};
   rows.forEach((row) => {
     const key = `${row.region}-${row.channel}`;
@@ -449,7 +495,7 @@ function EtlPipeline() {
       <h2 className="text-lg font-semibold text-slate-950">Proceso ETL propuesto</h2>
       <p className="text-sm text-slate-500">Flujo para convertir datos transaccionales en informacion analitica.</p>
       <div className="mt-5 grid gap-4 md:grid-cols-3">
-        {data.etl.map((row, index) => (
+        {data.processes.etl.map((row, index) => (
           <article className="rounded-lg border border-slate-200 bg-slate-50 p-4" key={row.phase}>
             <div className="mb-4 flex items-center justify-between">
               <span className="grid h-8 w-8 place-items-center rounded-md bg-slate-900 text-sm font-semibold text-white">{index + 1}</span>
@@ -472,17 +518,17 @@ function StarSchema() {
       <p className="text-sm text-slate-500">Esquema estrella recomendado para Power BI.</p>
       <div className="mt-6 grid gap-4 md:grid-cols-[1fr_1.2fr_1fr] md:items-center">
         <div className="space-y-3">
-          {data.starSchema.dimensions.slice(0, 3).map((dimension) => (
+          {data.model.dimensions.slice(0, 3).map((dimension) => (
             <div className="rounded-lg border border-indigo-200 bg-indigo-50 p-3 text-center text-sm font-semibold text-indigo-900" key={dimension}>{dimension}</div>
           ))}
         </div>
         <div className="rounded-lg border border-teal-200 bg-teal-50 p-5 text-center text-teal-950">
           <p className="text-xs uppercase tracking-wide">Tabla de hechos</p>
-          <h3 className="mt-1 text-xl font-bold">{data.starSchema.fact}</h3>
-          <p className="mt-3 text-sm">Metricas: {data.starSchema.measures.join(", ")}</p>
+          <h3 className="mt-1 text-xl font-bold">{data.model.fact}</h3>
+          <p className="mt-3 text-sm">Metricas: {data.model.measures.join(", ")}</p>
         </div>
         <div className="space-y-3">
-          {data.starSchema.dimensions.slice(3).map((dimension) => (
+          {data.model.dimensions.slice(3).map((dimension) => (
             <div className="rounded-lg border border-indigo-200 bg-indigo-50 p-3 text-center text-sm font-semibold text-indigo-900" key={dimension}>{dimension}</div>
           ))}
         </div>
@@ -497,9 +543,49 @@ function App() {
     channel: "Todos",
     category: "Todos"
   });
-  const totalSales = data.monthlySales.reduce((sum, row) => sum + row.tiendas + row.ecommerce, 0);
+  const totalSales = sum(factRows, "sales");
+  const totalTransactions = sum(factRows, "transactions");
+  const totalRecords = data.facts.length;
+  const avgQuality = data.facts.reduce((acc, row) => acc + row.dataQuality, 0) / totalRecords;
+  const kpis = [
+    {
+      label: "Ingresos consolidados",
+      value: money(totalSales),
+      helper: "Calculado desde la tabla de hechos",
+      Icon: BarChart3,
+      tone: "bg-blue-50 text-blue-700"
+    },
+    {
+      label: "Ticket promedio",
+      value: money(totalTransactions ? totalSales / totalTransactions : 0),
+      helper: `${number(totalTransactions)} transacciones integradas`,
+      Icon: Receipt,
+      tone: "bg-amber-50 text-amber-700"
+    },
+    {
+      label: "Registros de hechos",
+      value: number(totalRecords),
+      helper: "Filas simuladas en facts",
+      Icon: Database,
+      tone: "bg-teal-50 text-teal-700"
+    },
+    {
+      label: "Calidad promedio",
+      value: `${avgQuality.toFixed(1)}%`,
+      helper: "Promedio de dataQuality",
+      Icon: ShieldCheck,
+      tone: "bg-emerald-50 text-emerald-700"
+    }
+  ];
+  const regionSummary = dimensions.regions.map((region) => {
+    const rows = factRows.filter((row) => row.region === region.name);
+    return {
+      ...region,
+      sales: sum(rows, "sales")
+    };
+  }).sort((a, b) => b.sales - a.sales);
   const filteredFacts = useMemo(() => {
-    return data.olapFacts.filter((row) => {
+    return factRows.filter((row) => {
       return (
         (filters.region === "Todos" || row.region === filters.region) &&
         (filters.channel === "Todos" || row.channel === filters.channel) &&
@@ -532,7 +618,7 @@ function App() {
         </nav>
         <div className="mt-8 rounded-lg bg-white/10 p-4">
           <p className="text-sm font-semibold text-white">Periodo analizado</p>
-          <p className="mt-1 text-sm text-slate-300">{data.metadata.periodo}</p>
+          <p className="mt-1 text-sm text-slate-300">{data.metadata.period}</p>
           <p className="mt-4 text-sm font-semibold text-white">Ventas simuladas</p>
           <p className="mt-1 text-lg font-bold">{money(totalSales)}</p>
         </div>
@@ -552,22 +638,22 @@ function App() {
             </div>
 
             <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-              {data.kpis.map((item) => <KpiCard item={item} key={item.label} />)}
+              {kpis.map((item) => <KpiCard item={item} key={item.label} />)}
             </div>
 
             <div className="mt-6 grid gap-6 xl:grid-cols-[1.7fr_1fr]">
-              <SalesChart />
-              <ChannelPanel />
+              <SalesChart rows={factRows} />
+              <ChannelPanel rows={factRows} />
             </div>
 
             <div className="mt-6 grid gap-6 xl:grid-cols-[1.25fr_1fr]">
-              <ProductTable />
+              <ProductTable rows={factRows} />
               <section className="panel p-5">
                 <h2 className="text-lg font-semibold text-slate-950">Ventas por region</h2>
                 <p className="text-sm text-slate-500">Vista para priorizar abastecimiento y acciones comerciales.</p>
                 <div className="mt-5 space-y-3">
-                  {data.regions.map((region) => (
-                    <div className="rounded-lg border border-slate-200 p-4" key={region.name}>
+                  {regionSummary.map((region) => (
+                    <div className="rounded-lg border border-slate-200 p-4" key={region.id}>
                       <div className="flex items-center justify-between gap-3">
                         <div>
                           <h3 className="font-semibold text-slate-900">{region.name}</h3>
